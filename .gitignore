@@ -1,0 +1,18 @@
+node_modules/
+dist/
+.DS_Store
+.env
+.env.*
+
+# User-supplied fonts are kept local because redistribution rights vary.
+public/fonts/*.ttf
+public/fonts/*.otf
+public/fonts/*.woff
+public/fonts/*.woff2
+
+# Local design and QA artifacts. The curated README preview lives in docs/.
+implementation-*.png
+qa-*.png
+references/
+design-qa.md
+AGENTS.md

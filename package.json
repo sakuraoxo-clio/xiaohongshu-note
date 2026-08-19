@@ -1,0 +1,25 @@
+{
+  "name": "handwritten-note-studio",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && node scripts/prepare-sites-build.mjs",
+    "preview": "vite preview",
+    "test:sites": "node --test tests/sites-worker.test.mjs"
+  },
+  "dependencies": {
+    "@fontsource/long-cang": "^5.3.0",
+    "@fontsource/ma-shan-zheng": "^5.3.0",
+    "@fontsource/zcool-kuaile": "^5.3.0",
+    "@phosphor-icons/react": "^2.1.10",
+    "@vitejs/plugin-react": "5.0.4",
+    "html-to-image": "^1.11.13",
+    "jszip": "^3.10.1",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "roughjs": "^4.6.6",
+    "vite": "6.4.2"
+  }
+}
