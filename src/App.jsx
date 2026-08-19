@@ -768,7 +768,7 @@ export function App() {
   return (
     <div className="app-shell">
       <header className="topbar">
-        <div className="brand"><PenNib size={27} weight="fill" /><span>大纲转手写笔记</span></div>
+        <div className="brand"><PenNib size={27} weight="fill" /><span>小红书手写笔记</span></div>
         <div className="document-title"><span>{title}</span><PencilSimple size={16} /><span className="save-status"><Clock size={15} />已保存</span></div>
         <div className="top-actions">
           <button className="secondary-button export-button" onClick={exportPng} disabled={exporting}><DownloadSimple size={18} />{exporting ? "导出中…" : "导出 PNG"}</button>
