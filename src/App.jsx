@@ -57,9 +57,9 @@ const initialSections = [
 ];
 
 const paperOptions = [
-  { id: "classic", label: "米黄横线纸", src: "/assets/paper-classic-lined.png" },
-  { id: "clean", label: "白色横线纸", src: "/assets/paper-clean-lined.png" },
-  { id: "grid", label: "方格纸", src: "/assets/paper-grid.png" },
+  { id: "classic", label: "米黄横线纸", src: "/assets/paper-classic-lined.png", backgroundColor: "#fffdf8" },
+  { id: "clean", label: "白色横线纸", src: "/assets/paper-clean-lined.png", backgroundColor: "#ffffff" },
+  { id: "grid", label: "方格纸", src: "/assets/paper-grid.png", backgroundColor: "#ffffff" },
 ];
 
 const palettes = [
@@ -99,6 +99,20 @@ const brushOptions = [
   { id: "marker", label: "马克笔", roughness: 0.7, bowing: 1.6, widthScale: 1.55, multiStroke: false },
   { id: "chalk", label: "粉笔", roughness: 2.45, bowing: 1.15, widthScale: 1.15, multiStroke: true },
 ];
+
+const DEFAULT_STYLE = {
+  paper: "clean",
+  palette: "blue",
+  font: "shiguang",
+  fontWeight: 700,
+  density: 68,
+  layout: "classroom",
+  strokeBrush: "pencil",
+  strokeWeight: 2,
+  strokeJitter: 2,
+};
+
+const imageDataUrlCache = new Map();
 
 function stableSeed(value) {
   return [...String(value)].reduce((sum, char) => ((sum * 31) + char.charCodeAt(0)) % 2147483647, 17);
@@ -224,6 +238,42 @@ function downloadBlob(blob, filename) {
   URL.revokeObjectURL(url);
 }
 
+function preloadImage(src) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = resolve;
+    image.onerror = () => reject(new Error("纸张纹理加载失败，请稍后重试"));
+    image.src = src;
+    if (image.complete && image.naturalWidth > 0) resolve();
+  });
+}
+
+function blobToDataUrl(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error("纸张纹理读取失败，请稍后重试"));
+    reader.readAsDataURL(blob);
+  });
+}
+
+async function getImageDataUrl(src) {
+  if (!imageDataUrlCache.has(src)) {
+    const request = fetch(src, { cache: "force-cache" })
+      .then((response) => {
+        if (!response.ok) throw new Error("纸张纹理加载失败，请稍后重试");
+        return response.blob();
+      })
+      .then(blobToDataUrl)
+      .catch((error) => {
+        imageDataUrlCache.delete(src);
+        throw error;
+      });
+    imageDataUrlCache.set(src, request);
+  }
+  return imageDataUrlCache.get(src);
+}
+
 function PaperPage({
   title,
   paper,
@@ -239,7 +289,7 @@ function PaperPage({
   setSelectedBlock,
   pageRef,
 }) {
-  const paperSrc = paperOptions.find((item) => item.id === paper)?.src ?? paperOptions[0].src;
+  const activePaper = paperOptions.find((item) => item.id === paper) ?? paperOptions[0];
   const ink = palettes.find((item) => item.id === palette)?.colors ?? palettes[0].colors;
   const activeFont = fontOptions.find((item) => item.id === font) ?? fontOptions[0];
   const activeFontWeight = fontWeightOptions.find((item) => item.value === fontWeight) ?? fontWeightOptions[0];
@@ -251,7 +301,8 @@ function PaperPage({
       className={`paper-page layout-${layout}`}
       onClick={() => setSelectedBlock("")}
       style={{
-        backgroundImage: `url(${paperSrc})`,
+        backgroundColor: activePaper.backgroundColor,
+        backgroundImage: `url(${activePaper.src})`,
         "--ink-red": ink[0],
         "--ink-blue": ink[1],
         "--ink-black": ink[2],
@@ -620,7 +671,7 @@ function StylePanel({
         <div className="control-label"><span>页边距</span><b>适中</b></div>
       </section>
       <button className="primary-wide" onClick={applyAll}><Sparkle size={18} weight="fill" />应用到全部页面</button>
-      <button className="reset-button" onClick={() => { setPaper("classic"); setPalette("classic"); setFont("ma"); setFontWeight(400); setDensity(68); setLayout("classroom"); setStrokeBrush("pencil"); setStrokeWeight(2); setStrokeJitter(2); }}>重置当前页样式</button>
+      <button className="reset-button" onClick={() => { setPaper(DEFAULT_STYLE.paper); setPalette(DEFAULT_STYLE.palette); setFont(DEFAULT_STYLE.font); setFontWeight(DEFAULT_STYLE.fontWeight); setDensity(DEFAULT_STYLE.density); setLayout(DEFAULT_STYLE.layout); setStrokeBrush(DEFAULT_STYLE.strokeBrush); setStrokeWeight(DEFAULT_STYLE.strokeWeight); setStrokeJitter(DEFAULT_STYLE.strokeJitter); }}>重置当前页样式</button>
     </aside>
   );
 }
@@ -653,15 +704,15 @@ export function App() {
   const [selectedSection, setSelectedSection] = useState("mindset");
   const [selectedBlock, setSelectedBlock] = useState("");
   const [title, setTitle] = useState("极简面试准备 SOP");
-  const [paper, setPaper] = useState("classic");
-  const [palette, setPalette] = useState("classic");
-  const [font, setFont] = useState("ma");
-  const [fontWeight, setFontWeight] = useState(400);
-  const [density, setDensity] = useState(68);
-  const [layout, setLayout] = useState("classroom");
-  const [strokeBrush, setStrokeBrush] = useState("pencil");
-  const [strokeWeight, setStrokeWeight] = useState(2);
-  const [strokeJitter, setStrokeJitter] = useState(2);
+  const [paper, setPaper] = useState(DEFAULT_STYLE.paper);
+  const [palette, setPalette] = useState(DEFAULT_STYLE.palette);
+  const [font, setFont] = useState(DEFAULT_STYLE.font);
+  const [fontWeight, setFontWeight] = useState(DEFAULT_STYLE.fontWeight);
+  const [density, setDensity] = useState(DEFAULT_STYLE.density);
+  const [layout, setLayout] = useState(DEFAULT_STYLE.layout);
+  const [strokeBrush, setStrokeBrush] = useState(DEFAULT_STYLE.strokeBrush);
+  const [strokeWeight, setStrokeWeight] = useState(DEFAULT_STYLE.strokeWeight);
+  const [strokeJitter, setStrokeJitter] = useState(DEFAULT_STYLE.strokeJitter);
   const [toast, setToast] = useState("");
   const [batchOpen, setBatchOpen] = useState(false);
   const [batchNames, setBatchNames] = useState(["面试 SOP", "求职复盘", "项目总结"]);
@@ -685,13 +736,25 @@ export function App() {
 
   const capturePage = async () => {
     if (!pageRef.current) throw new Error("页面尚未就绪");
+    const activePaper = paperOptions.find((item) => item.id === paper) ?? paperOptions[0];
+    const paperUrl = new URL(activePaper.src, window.location.href).href;
+    const [paperDataUrl] = await Promise.all([getImageDataUrl(paperUrl), document.fonts.ready]);
+    await preloadImage(paperDataUrl);
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
     if (!fontCssRef.current) {
       fontCssRef.current = await getFontEmbedCSS(pageRef.current);
     }
     return toPng(pageRef.current, {
       cacheBust: true,
       pixelRatio: 2,
-      backgroundColor: "#fffdf8",
+      backgroundColor: activePaper.backgroundColor,
+      style: {
+        backgroundColor: activePaper.backgroundColor,
+        backgroundImage: `url("${paperDataUrl}")`,
+        backgroundSize: "100% 100%",
+        backgroundPosition: "center top",
+        backgroundRepeat: "no-repeat",
+      },
       fontEmbedCSS: fontCssRef.current,
       filter: (node) => !(node instanceof HTMLElement && node.classList.contains("editable-active")),
     });
