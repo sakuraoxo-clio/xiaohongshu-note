@@ -1,8 +1,8 @@
-# 大纲转手写笔记
+# xiaohongshu-note｜小红书手写笔记
 
-一个可以把结构化大纲整理成手写笔记长图的 React 工具。正文可以直接编辑，并支持切换纸张、字体、配色、排版和手绘笔刷，适合制作课程笔记、SOP、知识卡片与复习资料。
+一个把结构化大纲整理成小红书手写笔记长图的 React 工具。正文可以直接编辑，并支持切换纸张、字体、配色、排版和手绘笔刷，适合制作小红书知识笔记、课程总结、SOP、知识卡片与复习资料。
 
-![大纲转手写笔记界面预览](docs/preview.png)
+![小红书手写笔记编辑器界面预览](docs/preview.png)
 
 ## 主要功能
 
@@ -57,4 +57,3 @@ pingfang-shoushu.ttf
 ## 技术栈
 
 React 19、Vite、Rough.js、html-to-image、JSZip 与 Phosphor Icons。
-
